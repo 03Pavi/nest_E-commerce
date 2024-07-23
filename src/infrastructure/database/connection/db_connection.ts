@@ -12,6 +12,8 @@ export const createDB = async () => {
         username: configService.get<string>('DB_USER'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_DATABASE'),
+
+        
     };
     if (CREATE_DB) {
         createDatabase({

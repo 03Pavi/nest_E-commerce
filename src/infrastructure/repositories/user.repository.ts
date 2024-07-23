@@ -10,7 +10,6 @@ export class UserRepository extends Repository<User> {
         return await this.findOneBy({ email });
     }
     async createUser(createUserDto: User): Promise<User> {
-        console.log(createUserDto, "hi im in repo")
         return await this.save(createUserDto);
     }
     async findAllUser(authorizationToken): Promise<User[]> {
