@@ -1,7 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, HttpException, Req, Headers } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, HttpException, Req, Headers, UseGuards, ParseIntPipe, UsePipes, DefaultValuePipe, ParseUUIDPipe, UseFilters } from '@nestjs/common';
 import { UserService } from './services/user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { AuthGuard } from '../auth/auth.guard';
+import { IdException } from './exceptions/Id-exceptions';
+import { IdExceptionFilter } from './exceptions/exception-filter';
+import { HTTPExceptionFilter } from './exceptions/http-exception.filter';
+import { AppExceptionFilter } from './exceptions/app-exception-filter';
 
 @Controller('user')
 export class UserController {
@@ -21,23 +26,30 @@ export class UserController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Get()
   async findAll(@Headers('authorization') authorization: string, @Req() req: any) {
-    return this.userService.findAllUser(authorization);
+    console.log(req.user)
+    return this.userService.findAllUser();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseIntPipe, new DefaultValuePipe(1)) id: number) {
+    console.log(typeof id)
     return this.userService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+  @Patch(':uuid')
+  update(@Param('uuid', new ParseUUIDPipe({ version: '3' })) uuid: string, @Body() updateUserDto: UpdateUserDto) {
+    return this.userService.update(uuid, updateUserDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  @UseFilters(AppExceptionFilter)
+  remove(@Param('id', ParseIntPipe) id: number) {
+    if (id < 0) {
+      throw new HttpException("invalid Request", 400)
+    }
     return this.userService.remove(+id);
   }
 }

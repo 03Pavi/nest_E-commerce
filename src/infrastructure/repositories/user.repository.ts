@@ -12,8 +12,7 @@ export class UserRepository extends Repository<User> {
     async createUser(createUserDto: User): Promise<User> {
         return await this.save(createUserDto);
     }
-    async findAllUser(authorizationToken): Promise<User[]> {
-        console.log(authorizationToken, "req")
+    async findAllUser(): Promise<User[]> {
         return await this.find();
     }
 
