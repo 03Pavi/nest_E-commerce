@@ -1,15 +1,15 @@
 # Middleware
-
+ONLY WORK FOR REQUEST PHASE
 
 #### Register
 ```typescript
+src\features\user\user.module.ts
 
 controllers: [UserController],
 
 export class UserModule implements NestModule { 
   configure(consumer: MiddlewareConsumer) {
      consumer.apply(UserAgentMiddware).forRoutes("user"); 
-     
      or 
      consumer.apply(UserAgentMiddware).forRoutes(UserController);
   }
@@ -29,7 +29,18 @@ export class UserModule implements NestModule {
   }
 }
 ```
+chaining
 
+```typescript
+export class UserModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuthMiddleware,UserAgentMiddware).forRoutes({ //here authmiddleware will run first the the UserAgent
+      method: RequestMethod.POST,
+      path: '/users',
+    })
+  }
+}
+```
 ```typescript
 src/middlewares/user-agent.middleware.ts
 
@@ -48,6 +59,24 @@ export class UserAgentMiddware implements NestMiddleware {
 }
 
 ```
+For Global
+
+```typescript
+src\app.module.ts
+
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(UserAgentMiddware).forRoutes({
+      path: "*",
+      method: RequestMethod.ALL
+    }) //for all the routes 
+  }
+}
+
+```
+
+
+
 Reponse if faild
 ```bash
 {

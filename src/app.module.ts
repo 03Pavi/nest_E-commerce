@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './features/user/user.module';
 import { ProductModule } from './features/product/product.module';
@@ -28,11 +28,16 @@ import { UserAgentMiddware } from './concepts/middlewares/user-agent.middleware'
     AuthModule,
   ],
   controllers: [],
-  providers: [{
-    provide: APP_FILTER,
-    useClass: AppExceptionFilter
-  }],
+  // providers: [{
+  //   provide: APP_FILTER,
+  //   useClass: AppExceptionFilter
+  // }],
 })
-export class AppModule {
-  
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    // consumer.apply(UserAgentMiddware).forRoutes({
+    //   path: "*",
+    //   method: RequestMethod.ALL
+    // }) //for all the routes 
+  }
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, HttpException, Req, Headers, UseGuards, ParseIntPipe, UsePipes, DefaultValuePipe, ParseUUIDPipe, UseFilters } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, HttpException, Req, Headers, UseGuards, ParseIntPipe, UsePipes, DefaultValuePipe, ParseUUIDPipe, UseFilters, UseInterceptors } from '@nestjs/common';
 import { UserService } from './services/user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -7,6 +7,8 @@ import { IdException } from './exceptions/Id-exceptions';
 import { IdExceptionFilter } from './exceptions/exception-filter';
 import { HTTPExceptionFilter } from './exceptions/http-exception.filter';
 import { AppExceptionFilter } from './exceptions/app-exception-filter';
+import { RecentSearchInterceptor } from 'src/concepts/interceptors/recent-search.interceptor';
+import { UserInterceptor } from './interceptors/user.interceptor';
 
 @Controller('user')
 export class UserController {
@@ -14,6 +16,7 @@ export class UserController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(UserInterceptor)
   async createUser(@Body() createUserDto: CreateUserDto) {
     try {
       const user = await this.userService.createUser(createUserDto);
@@ -45,6 +48,7 @@ export class UserController {
   }
 
   @Delete(':id')
+  @UseInterceptors(RecentSearchInterceptor)
   @UseFilters(AppExceptionFilter)
   remove(@Param('id', ParseIntPipe) id: number) {
     if (id < 0) {
